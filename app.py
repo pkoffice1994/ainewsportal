@@ -673,6 +673,22 @@ def api_generate_article():
     return jsonify({"content": article, "provider": "ai_or_fallback"})
 
 
+@app.route("/api/ai-status")
+def api_ai_status():
+    if not is_logged_in():
+        return jsonify({"error": "unauthorized"}), 401
+    from news_agent import get_ai_status
+    status = get_ai_status()
+    warnings = []
+    if not status["groq_ok"]:
+        warnings.append({"provider": "Groq", "message": status["groq_error"]})
+    if not status["gemini_ok"]:
+        warnings.append({"provider": "Gemini", "message": status["gemini_error"]})
+    if not status["claude_ok"]:
+        warnings.append({"provider": "Claude", "message": status["claude_error"]})
+    return jsonify({"warnings": warnings, "all_ok": len(warnings) == 0})
+
+
 @app.route("/api/translate", methods=["POST"])
 def api_translate():
     if not is_logged_in():

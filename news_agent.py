@@ -4,6 +4,23 @@ import json
 import os
 import re
 import time
+
+# ── Global AI status — tracks credit/quota errors ────
+AI_STATUS = {
+    "groq_ok": True,
+    "gemini_ok": True,
+    "claude_ok": True,
+    "groq_error": "",
+    "gemini_error": "",
+    "claude_error": "",
+}
+
+def get_ai_status():
+    return AI_STATUS.copy()
+
+def _set_ai_error(provider, code, msg):
+    AI_STATUS[f"{provider}_ok"] = False
+    AI_STATUS[f"{provider}_error"] = f"Error {code}: {msg}"
 from html.parser import HTMLParser
 
 # ══════════════════════════════════════════════════════
@@ -13,7 +30,7 @@ from html.parser import HTMLParser
 GEMINI_MODEL   = "gemini-2.0-flash"
 GEMINI_URL     = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
-GROQ_MODEL     = "llama-3.1-8b-instant"  # faster model, higher rate limits
+GROQ_MODEL     = "llama-3.1-8b-instant"
 GROQ_URL       = "https://api.groq.com/openai/v1/chat/completions"
 
 CLAUDE_MODEL   = "claude-sonnet-4-20250514"
@@ -414,10 +431,20 @@ def call_groq(prompt, max_tokens=1000):
             )
             if resp2.status_code == 200:
                 return resp2.json()["choices"][0]["message"]["content"].strip()
+            err2 = resp2.text[:200]
             print(f"  [GROQ] Retry also failed: {resp2.status_code}")
+            if resp2.status_code == 402 or "insufficient_quota" in err2 or "credit" in err2.lower():
+                _set_ai_error("groq", resp2.status_code, "Credits exhausted — please top up your Groq account")
+            elif resp2.status_code == 429:
+                _set_ai_error("groq", 429, "Rate limit exceeded — wait a few minutes or upgrade your plan")
             return ""
         else:
-            print(f"  [GROQ] Error {resp.status_code}: {resp.text[:100]}")
+            err_text = resp.text[:200]
+            print(f"  [GROQ] Error {resp.status_code}: {err_text[:100]}")
+            if resp.status_code in (401, 403):
+                _set_ai_error("groq", resp.status_code, "Invalid API key or unauthorized")
+            elif resp.status_code == 402 or "insufficient_quota" in err_text or "credit" in err_text.lower() or "exceeded" in err_text.lower():
+                _set_ai_error("groq", resp.status_code, "Credits exhausted — please top up your Groq account")
             return ""
     except Exception as ex:
         print(f"  [GROQ] Exception: {ex}")
@@ -886,7 +913,17 @@ def fetch_news(category="India", limit=8, submitted_by="admin"):
                         en_content = c_raw
 
                 if not en_title:
-                    en_title = f"Breaking: Latest {db_category.replace('Hindi-', '')} Update"
+                    # Last resort: use a cleaned version of Hindi title as placeholder
+                    # Admin can use "Hindi→English" button in edit modal to translate manually
+                    en_title = hindi_title  # Will be filtered by looks_hindi in display
+                    # Try one more time with shorter prompt
+                    quick = call_ai(
+                        f"In 8 words or less, write an English news headline for: {hindi_title[:80]}. Return ONLY the headline.",
+                        max_tokens=40
+                    )
+                    quick = (quick or "").strip().strip('"').strip("'")
+                    if quick and not _is_devanagari(quick) and len(quick) > 5:
+                        en_title = quick
                 if not en_content:
                     en_content = (
                         f"Authorities and officials are closely monitoring the latest developments. "
