@@ -596,11 +596,6 @@ tr:hover td{background:#fafbfc}
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px">
               <label class="field-label" style="margin-bottom:0">English Content</label>
               <div style="display:flex;gap:6px">
-                <button type="button" id="translateToHindiBtn"
-                  onclick="translateArticle('hi')"
-                  style="padding:9px 14px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
-                  🔄 English → Hindi
-                </button>
                 {% if role == 'admin' %}
                 <button type="button" id="generateEditEnglishBtn"
                   onclick="generateEditArticle('en')"
@@ -624,11 +619,6 @@ tr:hover td{background:#fafbfc}
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px">
               <label class="field-label" style="margin-bottom:0">Hindi Content</label>
               <div style="display:flex;gap:6px">
-                <button type="button" id="translateToEnglishBtn"
-                  onclick="translateArticle('en')"
-                  style="padding:9px 14px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
-                  🔄 Hindi → English
-                </button>
                 {% if role == 'admin' %}
                 <button type="button" id="generateEditHindiBtn"
                   onclick="generateEditArticle('hi')"
