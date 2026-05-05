@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ module_label }} Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--sidebar:#070707;--paper:#fff;--line:#dde3ef;--ink:#121722;--accent:#f10091}
+body{font-family:Arial,sans-serif;background:#eef2f8;color:var(--ink)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:300px;background:var(--sidebar);color:#fff;padding:14px 0;overflow-y:auto;flex-shrink:0}
+.s-title{padding:0 16px 10px;font-size:28px;font-weight:700}
+.group{padding:10px 12px;border-bottom:1px solid #161616}
+.group h4{font-size:22px;margin-bottom:6px;color:#aaa}
+.item{display:block;padding:9px 8px;color:#bec5d8;text-decoration:none;font-size:18px;border-radius:8px}
+.item:hover{background:#171717;color:#fff}
+.item.active{background:var(--accent);color:#fff}
+.main{flex:1;padding:18px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.top h1{font-size:32px}
+.top a{padding:8px 12px;border:1px solid #aeb8d1;background:#fff;border-radius:999px;text-decoration:none;color:#20315c;font-size:14px;font-weight:700}
+.flash{padding:10px 12px;border-radius:8px;margin-bottom:8px;font-size:14px}
+.flash.success{background:#edf9f1;border-left:4px solid #198754}
+.flash.warning{background:#fff8ea;border-left:4px solid #e67e22}
+.flash.info{background:#edf3ff;border-left:4px solid #2e6bd3}
+.grid{display:grid;grid-template-columns:1fr 1.5fr;gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{font-size:22px;margin-bottom:10px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:4px}
+.field input,.field textarea,.field select{width:100%;padding:9px 10px;border:1px solid #cfd8eb;border-radius:8px;font-size:14px}
+.field textarea{min-height:100px;resize:vertical}
+.btn{padding:10px 14px;border:0;border-radius:8px;background:#1c3270;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 10px;border-bottom:1px solid #edf0f5;text-align:left;font-size:13px;vertical-align:top}
+th{font-size:11px;color:#4c566f;text-transform:uppercase;font-weight:700}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions a{padding:5px 9px;font-size:12px;border:1px solid #c7d0e6;border-radius:999px;text-decoration:none;color:#20315c;background:#fff}
+.muted{color:#6f7892}
+.note{padding:10px 12px;border-radius:8px;background:#eef4ff;color:#27406f;font-size:13px;line-height:1.6;margin-bottom:10px}
+.note code{background:#dde8ff;padding:1px 5px;border-radius:3px;font-size:12px}
+
+/* Ad Image Upload Tabs */
+.upload-tabs{display:flex;border:1.5px solid #cfd8eb;border-radius:8px;overflow:hidden;margin-bottom:0}
+.utab{flex:1;padding:8px 4px;font-size:12px;font-weight:700;border:none;background:#f7f8fa;color:#555;cursor:pointer;transition:all .15s;font-family:Arial,sans-serif}
+.utab.active{background:#1c3270;color:#fff}
+.upanel{display:none;padding:10px;border:1.5px solid #cfd8eb;border-top:none;border-radius:0 0 8px 8px}
+.upanel.active{display:block}
+.dropzone{border:2px dashed #b0bcd8;border-radius:8px;padding:28px 16px;text-align:center;cursor:pointer;background:#f7f9ff;transition:all .2s}
+.dropzone:hover,.dropzone.over{border-color:#1c3270;background:#eef2ff}
+.dropzone .icon{font-size:36px;margin-bottom:8px}
+.dropzone p{font-size:13px;color:#888}
+.img-preview{margin-top:10px;display:none}
+.img-preview img{max-width:100%;max-height:130px;object-fit:contain;border-radius:6px;border:1px solid #dde1e7}
+.upload-status{font-size:11px;color:#666;margin-top:5px}
+.size-guide{font-size:11px;color:#888;margin-top:6px;line-height:1.7}
+
+@media(max-width:1100px){
+  .sidebar{width:220px}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-title">Dashboard</div>
+    <div class="group">
+      <h4>News</h4>
+      <a class="item {% if module=='category' %}active{% endif %}" href="/manage/category">Category</a>
+      <a class="item {% if module=='subcategory' %}active{% endif %}" href="/manage/subcategory">Subcategory</a>
+      <a class="item {% if module=='tag' %}active{% endif %}" href="/manage/tag">Tag</a>
+      <a class="item" href="/dashboard">All News</a>
+      <a class="item {% if module=='short' %}active{% endif %}" href="/manage/short">Short</a>
+    </div>
+    <div class="group">
+      <h4>Homepage</h4>
+      <a class="item {% if module=='featured_section' %}active{% endif %}" href="/manage/featured_section">Featured Section</a>
+      <a class="item {% if module=='ad_spaces' %}active{% endif %}" href="/manage/ad_spaces">Ad Spaces</a>
+    </div>
+    <div class="group">
+      <h4>Users</h4>
+      <a class="item {% if module=='user' %}active{% endif %}" href="/manage/user">User</a>
+      <a class="item" href="/dashboard">Comment</a>
+      <a class="item {% if module=='comment_flag' %}active{% endif %}" href="/manage/comment_flag">Comment Flag</a>
+      <a class="item {% if module=='send_notification' %}active{% endif %}" href="/manage/send_notification">Notification</a>
+    </div>
+    <div class="group">
+      <h4>Other</h4>
+      <a class="item {% if module=='pages' %}active{% endif %}" href="/manage/pages">Pages</a>
+      <a class="item {% if module=='roles' %}active{% endif %}" href="/manage/roles">Roles</a>
+      <a class="item" href="/staff">Staff</a>
+      <a class="item {% if module=='system_setting' %}active{% endif %}" href="/manage/system_setting">System Settings</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <h1>{{ module_label }} Management</h1>
+      <div style="display:flex;gap:8px">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/news" target="_blank">Live Site</a>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat,msg in messages %}
+        <div class="flash {{ cat if cat in ['success','warning','info'] else 'info' }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="grid">
+      <!-- ADD FORM -->
+      <section class="card">
+        <h2>Add {{ module_label }}</h2>
+
+        {% if module == 'ad_spaces' %}
+        <div class="note">
+          <strong>📐 Banner Size Guide:</strong><br>
+          Header: <code>1200×90 px</code> &nbsp;|&nbsp; Sidebar: <code>300×250 px</code><br>
+          Billboard: <code>970×250 px</code> &nbsp;|&nbsp; Footer: <code>728×90 px</code><br>
+          <strong>location</strong>: <code>header</code> / <code>sidebar</code> / <code>homepage-top</code> / <code>article-bottom</code>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/manage/{{ module }}" enctype="multipart/form-data" id="moduleForm">
+          {% for field in fields %}
+          <div class="field">
+            <label>{{ field.replace('_',' ').title() }}</label>
+
+            {% if field in ['content','message','permissions'] %}
+              <textarea name="{{ field }}" required></textarea>
+
+            {% elif module == 'ad_spaces' and field == 'image_url' %}
+              <!-- IMAGE UPLOAD FOR ADS -->
+              <div class="upload-tabs">
+                <button type="button" class="utab active" onclick="adTab('url',this)">🔗 URL</button>
+                <button type="button" class="utab" onclick="adTab('computer',this)">💻 Computer</button>
+                <button type="button" class="utab" onclick="adTab('drag',this)">🖱️ Drag & Drop</button>
+              </div>
+
+              <!-- URL panel -->
+              <div class="upanel active" id="adpanel-url">
+                <input type="text" id="adImgUrl" name="image_url"
+                  placeholder="https://... paste image URL"
+                  oninput="showAdPreview(this.value)">
+                <div class="size-guide">
+                  Header: 1200×90 · Sidebar: 300×250 · Billboard: 970×250 · Footer: 728×90
+                </div>
+              </div>
+
+              <!-- Computer panel -->
+              <div class="upanel" id="adpanel-computer">
+                <input type="file" id="adFileInput" accept="image/*"
+                  style="display:none" onchange="handleAdFile(this.files[0])">
+                <button type="button" onclick="document.getElementById('adFileInput').click()"
+                  style="width:100%;padding:12px;border:1.5px dashed #b0bcd8;border-radius:8px;
+                  background:#f7f9ff;font-size:13px;cursor:pointer;color:#1c3270;font-weight:700">
+                  📁 Choose from Computer
+                </button>
+                <p style="font-size:11px;color:#888;margin-top:6px">JPG, PNG, WEBP — max 5MB</p>
+              </div>
+
+              <!-- Drag & Drop panel -->
+              <div class="upanel" id="adpanel-drag">
+                <div class="dropzone" id="adDropZone"
+                  ondragover="event.preventDefault();this.classList.add('over')"
+                  ondragleave="this.classList.remove('over')"
+                  ondrop="handleAdDrop(event)">
+                  <div class="icon">🖼️</div>
+                  <p>Drag your banner image here</p>
+                  <p style="font-size:11px;margin-top:4px">JPG, PNG, WEBP supported</p>
+                </div>
+              </div>
+
+              <!-- Shared preview -->
+              <div class="img-preview" id="adPreview">
+                <img id="adPreviewImg" src="" alt="preview">
+                <div class="upload-status" id="adStatus"></div>
+              </div>
+
+            {% else %}
+              <input name="{{ field }}"
+                {% if field != 'image_url' %}required{% endif %}
+                placeholder="{% if module=='ad_spaces' and field=='target_url' %}https://... click destination{% elif module=='ad_spaces' and field=='location' %}header / sidebar / homepage-top / article-bottom{% else %}Enter {{ field.replace('_',' ') }}{% endif %}">
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          {% if status_field %}
+          <div class="field">
+            <label>Status</label>
+            <select name="{{ status_field }}">
+              <option value="active">active</option>
+              <option value="inactive">inactive</option>
+              <option value="published">published</option>
+              <option value="draft">draft</option>
+              <option value="open">open</option>
+            </select>
+          </div>
+          {% endif %}
+
+          <button class="btn" type="submit">Add {{ module_label }}</button>
+        </form>
+      </section>
+
+      <!-- LIST -->
+      <section class="card">
+        <h2>Existing {{ module_label }} ({{ items|length }})</h2>
+        {% if items %}
+        <table>
+          <thead>
+            <tr>
+              {% for key in items[0].keys() %}<th>{{ key }}</th>{% endfor %}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              {% for key,val in item.items() %}
+              <td>
+                {% if key == 'image_url' and val and val.startswith('http') %}
+                  <img src="{{ val }}" style="max-width:80px;max-height:50px;object-fit:contain;border-radius:4px">
+                {% else %}
+                  {{ val if val is not none else '' }}
+                {% endif %}
+              </td>
+              {% endfor %}
+              <td>
+                <div class="actions">
+                  {% if status_field %}
+                  <a href="/manage/{{ module }}/toggle/{{ item.id }}">Toggle</a>
+                  {% endif %}
+                  <a href="/manage/{{ module }}/delete/{{ item.id }}"
+                    onclick="return confirm('Delete this item?')" style="color:#c0392b">Delete</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="muted" style="padding:20px">No items yet.</div>
+        {% endif %}
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Ad Image Upload Tabs ──
+function adTab(name, btn) {
+  document.querySelectorAll('.utab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.upanel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('adpanel-' + name).classList.add('active');
+}
+
+function showAdPreview(src) {
+  if (!src) return;
+  document.getElementById('adPreview').style.display = 'block';
+  document.getElementById('adPreviewImg').src = src;
+}
+
+function handleAdFile(file) {
+  if (!file) return;
+  uploadAdImage(file);
+}
+
+function handleAdDrop(e) {
+  e.preventDefault();
+  document.getElementById('adDropZone').classList.remove('over');
+  const file = e.dataTransfer.files[0];
+  if (file) uploadAdImage(file);
+}
+
+function uploadAdImage(file) {
+  const preview = document.getElementById('adPreview');
+  const img = document.getElementById('adPreviewImg');
+  const status = document.getElementById('adStatus');
+  // Show local preview immediately
+  const reader = new FileReader();
+  reader.onload = e => {
+    preview.style.display = 'block';
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  status.textContent = '⏳ Uploading to server...';
+  // Upload
+  const fd = new FormData();
+  fd.append('file', file);
+  fetch('/upload_image', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.url) {
+        document.getElementById('adImgUrl').value = data.url;
+        status.textContent = '✅ Uploaded! URL saved.';
+        // Switch to URL tab to show saved URL
+        document.querySelectorAll('.utab')[0].click();
+      } else {
+        status.textContent = '⚠️ Upload failed — use URL tab instead.';
+      }
+    })
+    .catch(() => {
+      status.textContent = '⚠️ Server error — image preview only, save URL manually.';
+    });
+}
+</script>
+</body>
+</html>

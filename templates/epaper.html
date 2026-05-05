@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="{{ 'hi' if lang == 'hi' else 'en' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if lang=='hi' %}ई-पेपर{% else %}E-Paper{% endif %} | BharatNews</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f8f6f2;color:#111}
+header{background:#111;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:'Playfair Display',serif;font-size:28px;color:#fff;text-decoration:none;font-weight:900}
+.logo span{color:#d32f2f}
+.btns{display:flex;gap:10px}
+.btn{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:8px 14px;border-radius:4px;font-size:12px}
+.container{max-width:1180px;margin:0 auto;padding:30px 20px}
+.hero{margin-bottom:24px}
+.hero h1{font-family:'Playfair Display',serif;font-size:34px;margin-bottom:8px}
+.hero h1.hindi{font-family:'Tiro Devanagari Hindi',serif}
+.hero p{color:#666;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:#fff;border:1px solid #e0dbd4;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.card img{width:100%;height:240px;object-fit:cover;display:block}
+.card-body{padding:18px}
+.meta{font-size:12px;color:#777;margin-bottom:10px}
+.title{font-size:18px;font-weight:700;line-height:1.45;margin-bottom:10px}
+.title.hindi{font-family:'Tiro Devanagari Hindi',serif}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.action{display:inline-block;padding:9px 14px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:700}
+.open{background:#111;color:#fff}
+.download{background:#d32f2f;color:#fff}
+.empty{padding:80px 20px;text-align:center;color:#666}
+@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.hero h1{font-size:28px}}
+</style>
+</head>
+<body>
+<header>
+  <a href="/news?lang={{ lang }}" class="logo">Bharat<span>News</span></a>
+  <div class="btns">
+    <a class="btn" href="/news?lang={{ lang }}">{% if lang=='hi' %}होम{% else %}Home{% endif %}</a>
+    <a class="btn" href="/dashboard">{% if lang=='hi' %}डैशबोर्ड{% else %}Dashboard{% endif %}</a>
+  </div>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1 class="{% if lang=='hi' %}hindi{% endif %}">{% if lang=='hi' %}आज का ई-पेपर{% else %}Today's E-Paper{% endif %}</h1>
+    <p>{% if lang=='hi' %}यहां सभी अपलोड किए गए अखबार संस्करण एक जगह उपलब्ध हैं। PDF या image edition सीधे खोल सकते हैं।{% else %}All uploaded newspaper editions are available here in one place. Open the PDF or image edition directly from this page.{% endif %}</p>
+  </div>
+
+  {% if epapers %}
+  <div class="grid">
+    {% for ep in epapers %}
+    <div class="card">
+      <img src="{{ ep.cover_image or 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=1200&q=80' }}" alt="e-paper cover">
+      <div class="card-body">
+        <div class="meta">{{ ep.edition_date or (ep.created_at[:10] if ep.created_at else '') }} • {{ ep.uploaded_by }}</div>
+        <div class="title {% if lang=='hi' %}hindi{% endif %}">{{ ep.title }}</div>
+        <div class="actions">
+          <a class="action open" href="{{ ep.file_url }}" target="_blank">{% if lang=='hi' %}खोलें{% else %}Open{% endif %}</a>
+          <a class="action download" href="{{ ep.file_url }}" download>{% if lang=='hi' %}डाउनलोड{% else %}Download{% endif %}</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <h2>{% if lang=='hi' %}अभी कोई ई-पेपर उपलब्ध नहीं है{% else %}No e-paper available yet{% endif %}</h2>
+  </div>
+  {% endif %}
+</main>
+</body>
+</html>

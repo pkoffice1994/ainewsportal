@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if page_type=='about' %}About Us{% else %}Contact Us{% endif %}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#eef1f7;color:#111}
+body.night{background:#0b1425;color:#e8edff}
+.box{max-width:980px;margin:40px auto;background:#fff;padding:28px;border-radius:14px;border:1px solid #d6dcea}
+body.night .box{background:#131e34;border-color:#2f3f63}
+h1{font-size:40px;margin-bottom:14px}
+p{font-size:20px;line-height:1.7;margin-bottom:10px}
+.back{display:inline-block;margin-top:14px;padding:10px 14px;border-radius:999px;border:1px solid #aab3cf;background:#f7f9ff;color:#1f2f5d;text-decoration:none;font-weight:700}
+</style>
+</head>
+<body class="{% if theme == 'night' %}night{% endif %}">
+  <div class="box">
+    {% if page_type == 'about' %}
+    <h1>{% if lang=='hi' %}हमारे बारे में{% else %}About Us{% endif %}</h1>
+    <p>{% if lang=='hi' %}हम एक डिजिटल न्यूज़ प्लेटफॉर्म हैं जो तेज, साफ और श्रेणी-आधारित खबरें प्रदान करता है।{% else %}We are a digital news platform focused on fast, clear, category-based publishing.{% endif %}</p>
+    <p>{% if lang=='hi' %}हमारा लक्ष्य हिंदी और अंग्रेजी में बेहतर रीडिंग अनुभव देना है।{% else %}Our goal is to deliver a better reading experience in both Hindi and English.{% endif %}</p>
+    {% else %}
+    <h1>{% if lang=='hi' %}संपर्क करें{% else %}Contact Us{% endif %}</h1>
+    <p>{% if lang=='hi' %}ईमेल: support@deshkidharti.news{% else %}Email: support@deshkidharti.news{% endif %}</p>
+    <p>{% if lang=='hi' %}सम्पादकीय टीम: +91-90000-00000{% else %}Editorial Desk: +91-90000-00000{% endif %}</p>
+    <p>{% if lang=='hi' %}पता: कोटा, राजस्थान, भारत{% else %}Address: Kota, Rajasthan, India{% endif %}</p>
+    {% endif %}
+    <a class="back" href="/news?lang={{ lang }}&theme={{ theme }}">Back to Home</a>
+  </div>
+</body>
+</html>

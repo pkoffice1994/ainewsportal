@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if lang == 'hi' %}न्यूज़डेस्क — हर खबर, हर पल{% else %}NewsDesk — Every Story, Every Moment{% endif %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital,wght@0,400;1,400&family=Playfair+Display:wght@700;800;900&family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#e8001d;--red2:#b5001a;--orange:#ff6b00;
+  --bg:#f2f2f2;--panel:#ffffff;--ink:#111111;--muted:#555;--line:#e0e0e0;
+  --chip:#f0f0f0;--radius:6px;--shadow:0 2px 12px rgba(0,0,0,.08);
+}
+body.night{
+  --bg:#0a0a0a;--panel:#161616;--ink:#f0f0f0;--muted:#888;--line:#2a2a2a;--chip:#222;
+}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--ink);transition:background .3s,color .3s}
+a{text-decoration:none;color:inherit}
+img{display:block;width:100%}
+.container{max-width:1280px;margin:0 auto;padding:0 16px}
+.hi{font-family:'Tiro Devanagari Hindi',serif}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--red);color:#fff;height:38px;display:flex;align-items:center}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;width:100%}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-date{font-size:11px;font-weight:600;letter-spacing:.06em;opacity:.9}
+.topbar-social{display:flex;gap:8px}
+.soc-btn{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;transition:background .2s}
+.soc-btn:hover{background:rgba(255,255,255,.4)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lang-pill{display:flex;background:rgba(0,0,0,.25);border-radius:4px;overflow:hidden}
+.lang-btn{padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7);cursor:pointer;border:none;background:none;font-family:'Barlow',sans-serif;transition:all .2s}
+.lang-btn.active{background:#fff;color:var(--red);border-radius:3px}
+.theme-toggle{position:relative;width:44px;height:22px;cursor:pointer}
+.theme-toggle input{opacity:0;width:0;height:0;position:absolute}
+.tt-track{position:absolute;inset:0;border-radius:999px;background:rgba(0,0,0,.3);transition:background .3s}
+.tt-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .3s;font-size:9px;display:flex;align-items:center;justify-content:center}
+body.night .tt-thumb{transform:translateX(22px)}
+
+/* ── HEADER ── */
+.header{background:var(--panel);border-bottom:3px solid var(--red);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-flag{display:flex;flex-direction:column;width:5px;height:32px;border-radius:3px;overflow:hidden;flex-shrink:0}
+.logo-flag span{flex:1}
+.logo-flag span:nth-child(1){background:#ff9933}
+.logo-flag span:nth-child(2){background:#fff}
+.logo-flag span:nth-child(3){background:#138808}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;letter-spacing:-.01em;line-height:1}
+.logo-text em{color:var(--red);font-style:normal}
+.logo-tag{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:1px}
+
+/* Search bar */
+.search-wrap{flex:1;max-width:360px;position:relative}
+.search-input{width:100%;height:38px;border:2px solid var(--line);border-radius:4px;padding:0 38px 0 14px;font-size:13px;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--red)}
+.search-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px}
+
+.nav{display:flex;align-items:center;gap:4px}
+.nav a{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);padding:6px 10px;border-radius:4px;transition:all .2s}
+.nav a:hover{background:var(--red);color:#fff}
+
+/* ── CATEGORY BAR ── */
+.catbar{background:var(--ink);overflow:hidden}
+.cat-list{display:flex;overflow-x:auto;scrollbar-width:none}
+.cat-list::-webkit-scrollbar{display:none}
+.cat{padding:10px 16px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.65);white-space:nowrap;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.cat:hover{color:#fff;background:rgba(255,255,255,.08)}
+.cat.active{color:#fff;border-bottom-color:var(--red);background:rgba(232,0,29,.15)}
+body.night .catbar{background:#111}
+
+/* ── TICKER ── */
+.ticker{background:var(--red);color:#fff;display:flex;align-items:center;height:34px;overflow:hidden}
+.ticker-label{padding:0 14px;font-size:10px;font-weight:900;letter-spacing:.14em;white-space:nowrap;background:var(--red2);height:100%;display:flex;align-items:center;text-transform:uppercase}
+.ticker-inner{flex:1;overflow:hidden;position:relative}
+.ticker-track{display:flex;gap:48px;animation:tick 50s linear infinite;white-space:nowrap;align-items:center}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-item{font-size:12px;font-weight:600}
+.ticker-dot{opacity:.5;font-size:8px}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── MAIN LAYOUT ── */
+.page{padding:20px 0 48px}
+.page-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+
+/* Hero */
+.hero{margin-bottom:20px;display:grid;grid-template-columns:1.8fr 1fr;gap:4px;border-radius:var(--radius);overflow:hidden}
+.lead{position:relative;cursor:pointer;overflow:hidden}
+.lead:hover .lead-img{transform:scale(1.03)}
+.lead-img{width:100%;height:420px;object-fit:cover;transition:transform .5s}
+.lead-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.5) 50%,rgba(0,0,0,.1) 100%);padding:20px;display:flex;flex-direction:column;justify-content:flex-end}
+.lead-cat-badge{display:inline-block;background:var(--red);color:#fff;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;margin-bottom:10px;width:fit-content}
+.lead-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:#fff;line-height:1.25;margin-bottom:8px}
+.lead-meta{font-size:11px;color:rgba(255,255,255,.6);display:flex;gap:10px}
+
+/* Hero stack */
+.hero-stack{display:grid;grid-template-rows:repeat(3,1fr);gap:4px}
+.hstack-card{position:relative;cursor:pointer;overflow:hidden}
+.hstack-card:hover .hstack-img{transform:scale(1.05)}
+.hstack-img{width:100%;height:138px;object-fit:cover;transition:transform .5s}
+.hstack-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.88) 0%,transparent 60%);padding:10px}
+.hstack-cat{font-size:9px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.1em}
+.hstack-title{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hstack-overlay{display:flex;flex-direction:column;justify-content:flex-end}
+
+/* Section header */
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--red)}
+.sec-head h2{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
+.sec-head-line{flex:1;height:1px;background:var(--line)}
+
+/* News grid */
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.ncard{background:var(--panel);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);transition:all .25s;cursor:pointer}
+.ncard:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,.13);border-color:var(--red)}
+.ncard-imgwrap{overflow:hidden;height:170px}
+.ncard-img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.ncard:hover .ncard-img{transform:scale(1.05)}
+.ncard-body{padding:12px}
+.ncard-cat{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:5px}
+.ncard-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.3;color:var(--ink);margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ncard-excerpt{font-size:12px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ncard-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.ncard-date{font-size:11px;color:var(--muted)}
+.ncard-arr{width:26px;height:26px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s}
+.ncard:hover .ncard-arr{background:var(--red);color:#fff}
+
+/* List card (alternate layout) */
+.list-card{display:grid;grid-template-columns:100px 1fr;gap:10px;background:var(--panel);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);transition:all .2s;cursor:pointer;margin-bottom:10px}
+.list-card:hover{border-color:var(--red);transform:translateX(3px)}
+.list-img{width:100px;height:72px;object-fit:cover}
+.list-body{padding:8px 10px 8px 0;display:flex;flex-direction:column;justify-content:center}
+.list-cat{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--red)}
+.list-title{font-size:13px;font-weight:700;line-height:1.3;color:var(--ink);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list-date{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* ── SIDEBAR ── */
+.sidebar{}
+.sidebar-block{background:var(--panel);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:16px}
+.sb-head{background:var(--red);color:#fff;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.trending-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
+.trending-item:last-child{border-bottom:none}
+.trending-item:hover{background:var(--chip)}
+.trend-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--red);opacity:.25;line-height:1;flex-shrink:0;width:28px}
+.trend-title{font-size:13px;font-weight:600;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.trend-cat{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+/* Search result */
+.search-results{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:none;margin-bottom:16px}
+.search-results.show{display:block}
+.sr-head{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;color:var(--muted)}
+.sr-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
+.sr-item:hover{background:var(--chip)}
+.sr-item:last-child{border-bottom:none}
+.sr-img{width:56px;height:40px;object-fit:cover;border-radius:3px;flex-shrink:0}
+.sr-title{font-size:13px;font-weight:600;line-height:1.3;color:var(--ink)}
+.sr-cat{font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;margin-top:2px}
+
+/* Empty */
+.empty{padding:60px 20px;text-align:center;color:var(--muted)}
+.empty h3{font-family:'Playfair Display',serif;font-size:24px;color:var(--ink);margin:12px 0 8px}
+
+/* Footer */
+.footer{background:#111;color:rgba(255,255,255,.5);padding:24px 0}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-logo{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:#fff}
+.footer-logo em{color:var(--red);font-style:normal}
+.footer-links{display:flex;gap:16px;font-size:12px}
+.footer-links a{color:rgba(255,255,255,.5);transition:color .2s}
+.footer-links a:hover{color:#fff}
+.footer-copy{font-size:11px;letter-spacing:.06em}
+
+@media(max-width:1024px){
+  .page-grid{grid-template-columns:1fr}
+  .sidebar{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .news-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:680px){
+  .hero{grid-template-columns:1fr}
+  .hero-stack{display:none}
+  .lead-img{height:260px}
+  .lead-title{font-size:19px}
+  .news-grid{grid-template-columns:1fr}
+  .search-wrap{max-width:160px}
+  .nav{display:none}
+  .logo-text{font-size:26px}
+  .sidebar{grid-template-columns:1fr}
+  .topbar-social{display:none}
+}
+</style>
+</head>
+<body class="{% if theme == 'night' %}night{% endif %}">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="topbar-left">
+      <span class="topbar-date" id="todayDate"></span>
+      <div class="topbar-social">
+        <a class="soc-btn" href="#" title="Facebook">f</a>
+        <a class="soc-btn" href="#" title="Twitter">𝕏</a>
+        <a class="soc-btn" href="#" title="YouTube">▶</a>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="lang-pill">
+        <a class="lang-btn {% if lang == 'en' %}active{% endif %}" href="?{{ urlencode({'lang': 'en', 'category': category, 'theme': theme}) }}">EN</a>
+        <a class="lang-btn {% if lang == 'hi' %}active{% endif %}" href="?{{ urlencode({'lang': 'hi', 'category': category, 'theme': theme}) }}">हि</a>
+      </div>
+      <label class="theme-toggle" title="Dark/Light">
+        <input type="checkbox" id="themeCheck" {% if theme == 'night' %}checked{% endif %} onchange="toggleTheme(this)">
+        <div class="tt-track"></div>
+        <div class="tt-thumb">{% if theme == 'night' %}🌙{% else %}☀️{% endif %}</div>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="/news?{{ urlencode({'lang': lang, 'theme': theme}) }}">
+      <div class="logo-flag"><span></span><span></span><span></span></div>
+      <div>
+        <div class="logo-text">News<em>Desk</em></div>
+        <div class="logo-tag">{% if lang == 'hi' %}हर खबर, हर पल{% else %}Every Story, Every Moment{% endif %}</div>
+      </div>
+    </a>
+
+    <div class="search-wrap">
+      <input class="search-input" type="text" id="searchInput" placeholder="{% if lang == 'hi' %}खबर खोजें...{% else %}Search news...{% endif %}" autocomplete="off">
+      <button class="search-btn" onclick="doSearch()">🔍</button>
+    </div>
+
+    <nav class="nav">
+      <a href="/news?{{ urlencode({'lang': lang, 'theme': theme}) }}">{% if lang == 'hi' %}होम{% else %}Home{% endif %}</a>
+      <a href="/about-us?{{ urlencode({'lang': lang, 'theme': theme}) }}">{% if lang == 'hi' %}हमारे बारे में{% else %}About{% endif %}</a>
+      <a href="/contact-us?{{ urlencode({'lang': lang, 'theme': theme}) }}">{% if lang == 'hi' %}संपर्क{% else %}Contact{% endif %}</a>
+    </nav>
+  </div>
+
+  <!-- CATEGORY BAR -->
+  <div class="catbar">
+    <div class="container">
+      <div class="cat-list">
+        <a class="cat {% if category == 'all' %}active{% endif %}" href="?{{ urlencode({'lang': lang, 'category': 'all', 'theme': theme}) }}">{% if lang == 'hi' %}सभी{% else %}ALL{% endif %}</a>
+        {% for c in categories %}
+        <a class="cat {% if category == c %}active{% endif %}" href="?{{ urlencode({'lang': lang, 'category': c, 'theme': theme}) }}">{{ c }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- BREAKING TICKER -->
+{% if news %}
+<div class="ticker">
+  <div class="ticker-label">{% if lang == 'hi' %}🔴 ताज़ा{% else %}🔴 BREAKING{% endif %}</div>
+  <div class="ticker-inner">
+    <div class="ticker-track">
+      {% for n in news[:10] %}<span class="ticker-item {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</span><span class="ticker-dot">◆</span>{% endfor %}
+      {% for n in news[:10] %}<span class="ticker-item {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</span><span class="ticker-dot">◆</span>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- SEARCH RESULTS -->
+<div class="container">
+  <div class="search-results" id="searchResults">
+    <div class="sr-head" id="srHead"></div>
+    <div id="srList"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="container page">
+{% if news %}
+  <!-- HERO -->
+  {% set lead = news[0] %}
+  <div class="hero">
+    <a class="lead" href="{{ lead.detail_url }}&theme={{ theme }}">
+      <img class="lead-img" src="{{ lead.display_image_url }}" alt="{{ lead.display_title }}">
+      <div class="lead-overlay">
+        <div class="lead-cat-badge">{{ lead.category }}</div>
+        <div class="lead-title {% if lang == 'hi' %}hi{% endif %}">{{ lead.display_title }}</div>
+        <div class="lead-meta">
+          <span>{{ lead.created_at[:10] if lead.created_at else '' }}</span>
+          <span>•</span>
+          <span>{% if lead.top_pick %}⭐ Top Story{% else %}Latest{% endif %}</span>
+        </div>
+      </div>
+    </a>
+    <div class="hero-stack">
+      {% for n in top_news[:3] %}
+      <a class="hstack-card" href="{{ n.detail_url }}&theme={{ theme }}">
+        <img class="hstack-img" src="{{ n.display_image_url }}" alt="{{ n.display_title }}">
+        <div class="hstack-overlay">
+          <div class="hstack-cat">{{ n.category }}</div>
+          <div class="hstack-title {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- CONTENT + SIDEBAR -->
+  <div class="page-grid">
+    <div>
+      {% if news|length > 1 %}
+      <div class="sec-head">
+        <div style="width:4px;height:22px;background:var(--red);border-radius:2px;flex-shrink:0"></div>
+        <h2>{% if lang == 'hi' %}ताज़ा खबरें{% else %}Latest Stories{% endif %}</h2>
+        <div class="sec-head-line"></div>
+      </div>
+
+      <div class="news-grid">
+        {% for n in news[1:7] %}
+        <a class="ncard" href="{{ n.detail_url }}&theme={{ theme }}">
+          <div class="ncard-imgwrap">
+            <img class="ncard-img" src="{{ n.display_image_url }}" alt="{{ n.display_title }}">
+          </div>
+          <div class="ncard-body">
+            <div class="ncard-cat">{{ n.category }}</div>
+            <div class="ncard-title {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</div>
+            <div class="ncard-excerpt {% if lang == 'hi' %}hi{% endif %}">{{ n.display_summary or n.display_content }}</div>
+            <div class="ncard-foot">
+              <span class="ncard-date">{{ n.created_at[:10] if n.created_at else '' }}</span>
+              <div class="ncard-arr">→</div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      {% if news|length > 7 %}
+      <div class="sec-head" style="margin-top:8px">
+        <div style="width:4px;height:22px;background:var(--orange);border-radius:2px;flex-shrink:0"></div>
+        <h2 style="color:var(--orange)">{% if lang == 'hi' %}और खबरें{% else %}More Stories{% endif %}</h2>
+        <div class="sec-head-line"></div>
+      </div>
+      {% for n in news[7:] %}
+      <a class="list-card" href="{{ n.detail_url }}&theme={{ theme }}">
+        <img class="list-img" src="{{ n.display_image_url }}" alt="{{ n.display_title }}">
+        <div class="list-body">
+          <div class="list-cat">{{ n.category }}</div>
+          <div class="list-title {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</div>
+          <div class="list-date">{{ n.created_at[:10] if n.created_at else '' }}</div>
+        </div>
+      </a>
+      {% endfor %}
+      {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-block">
+        <div class="sb-head">🔥 {% if lang == 'hi' %}ट्रेंडिंग{% else %}Trending{% endif %}</div>
+        {% for n in news[:6] %}
+        <a class="trending-item" href="{{ n.detail_url }}&theme={{ theme }}">
+          <div class="trend-num">{{ loop.index }}</div>
+          <div>
+            <div class="trend-cat">{{ n.category }}</div>
+            <div class="trend-title {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      {% if top_news %}
+      <div class="sidebar-block">
+        <div class="sb-head">⭐ {% if lang == 'hi' %}टॉप स्टोरी{% else %}Top Stories{% endif %}</div>
+        {% for n in top_news[:4] %}
+        <a class="trending-item" href="{{ n.detail_url }}&theme={{ theme }}">
+          <div class="trend-num">{{ loop.index }}</div>
+          <div>
+            <div class="trend-cat">{{ n.category }}</div>
+            <div class="trend-title {% if lang == 'hi' %}hi{% endif %}">{{ n.display_title }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+
+{% else %}
+  <div class="empty">
+    <div style="font-size:52px">📰</div>
+    <h3>{% if lang == 'hi' %}अभी कोई प्रकाशित खबर नहीं{% else %}No published stories yet{% endif %}</h3>
+    <p>{% if lang == 'hi' %}खबरें approve होते ही यहाँ दिखेंगी।{% else %}Stories will appear here once approved.{% endif %}</p>
+  </div>
+{% endif %}
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-logo">News<em>Desk</em></div>
+    <div class="footer-links">
+      <a href="/about-us?lang={{ lang }}">{% if lang == 'hi' %}हमारे बारे में{% else %}About{% endif %}</a>
+      <a href="/contact-us?lang={{ lang }}">{% if lang == 'hi' %}संपर्क{% else %}Contact{% endif %}</a>
+    </div>
+    <div class="footer-copy">© 2026 NewsDesk. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+// Date
+const d = new Date();
+document.getElementById('todayDate').textContent = d.toLocaleDateString('{% if lang == "hi" %}hi-IN{% else %}en-IN{% endif %}', {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+// Theme
+function toggleTheme(cb) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('theme', cb.checked ? 'night' : 'day');
+  window.location.href = url.toString();
+}
+
+// Search
+const allNews = [
+  {% for n in news %}
+  {title: {{ n.display_title | tojson }}, cat: {{ n.category | tojson }}, url: "{{ n.detail_url }}&theme={{ theme }}", img: {{ n.display_image_url | tojson }}},
+  {% endfor %}
+];
+
+const inp = document.getElementById('searchInput');
+const res = document.getElementById('searchResults');
+const srHead = document.getElementById('srHead');
+const srList = document.getElementById('srList');
+
+inp.addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (q.length < 2) { res.classList.remove('show'); return; }
+  const found = allNews.filter(n => n.title.toLowerCase().includes(q)).slice(0, 6);
+  srHead.textContent = found.length + ' result' + (found.length !== 1 ? 's' : '') + ' for "' + this.value + '"';
+  srList.innerHTML = found.length ? found.map(n =>
+    `<a class="sr-item" href="${n.url}">
+      <img class="sr-img" src="${n.img}" alt="">
+      <div><div class="sr-cat">${n.cat}</div><div class="sr-title">${n.title}</div></div>
+    </a>`).join('') : '<div style="padding:14px;color:var(--muted);font-size:13px">No results found</div>';
+  res.classList.add('show');
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.search-wrap') && !e.target.closest('#searchResults')) {
+    res.classList.remove('show');
+  }
+});
+
+inp.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch();
+});
+
+function doSearch() {
+  const q = inp.value.trim();
+  if (q) window.location.href = '/news?lang={{ lang }}&search=' + encodeURIComponent(q);
+}
+</script>
+</body>
+</html>

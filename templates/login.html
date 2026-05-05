@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — NewsDesk CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#0d0b08 0%,#1a1208 60%,#0d0b08 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.wrap{width:100%;max-width:400px;padding:20px}
+.logo{text-align:center;margin-bottom:32px}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:800;color:#f0ece4}
+.logo-text em{color:#c8381a;font-style:normal}
+.logo-sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,236,228,.35);margin-top:4px}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;backdrop-filter:blur(10px)}
+.card-title{font-size:16px;font-weight:600;color:#f0ece4;margin-bottom:22px;text-align:center;opacity:.7}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,236,228,.4);margin-bottom:6px}
+.field input{width:100%;padding:11px 13px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;color:#f0ece4;outline:none;transition:border-color .2s}
+.field input:focus{border-color:#c8381a}
+.field input::placeholder{color:rgba(240,236,228,.2)}
+.btn{width:100%;padding:12px;margin-top:6px;background:#c8381a;color:#fff;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn:hover{background:#a82e14}
+.error{background:rgba(200,56,26,.15);border:1px solid rgba(200,56,26,.3);color:#ff9f8d;padding:10px 13px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:center}
+.hint{margin-top:18px;text-align:center;font-size:12px;color:rgba(240,236,228,.25)}
+.hint strong{color:rgba(240,236,228,.45)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-text">News<em>Desk</em></div>
+    <div class="logo-sub">Content Management System</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sign in to Dashboard</div>
+    {% if error %}<div class="error">⚠️ {{ error }}</div>{% endif %}
+    <form method="POST">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" required autofocus placeholder="Enter username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="Enter password">
+      </div>
+      <button class="btn" type="submit">Sign In →</button>
+    </form>
+  </div>
+  <div class="hint">Default: <strong>admin</strong> / <strong>1234</strong></div>
+</div>
+</body>
+</html>
