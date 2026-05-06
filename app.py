@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import requests as req
+import threading
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
 
 from db import (
@@ -528,6 +529,9 @@ def manage_module_toggle(module, item_id):
     return redirect(url_for("manage_module", module=module))
 
 
+# Track background fetch jobs
+_fetch_jobs = {}
+
 @app.route("/generate")
 def generate():
     if not is_logged_in():
@@ -537,31 +541,31 @@ def generate():
         return redirect(url_for("dashboard"))
     category = request.args.get("category", "India")
     uname = get_uname()
-    try:
-        items = fetch_news(category=category, limit=8, submitted_by=uname)
-    except Exception as e:
-        print(f"[FETCH ERROR] {e}")
-        flash(f"⚠️ Fetch failed: {str(e)[:100]}", "warning")
+
+    job_id = category
+    if _fetch_jobs.get(job_id) == "running":
+        flash(f"⏳ Fetch already running for '{category}' — please wait...", "warning")
         return redirect(url_for("dashboard"))
-    for n in items:
-        insert_news(
-            n["title"],
-            n["content"],
-            n["hindi_title"],
-            n["hindi_content"],
-            n["source"],
-            n["category"],
-            n.get("image_url", ""),
-            n.get("tags", ""),
-            uname,
-        )
-    if has_ai_configured():
-        flash(f"✅ {len(items)} articles fetched from '{category}' with rewritten content, auto summary, and 3 strong tags.", "success")
-    else:
-        flash(
-            f"⚠️ {len(items)} articles fetched from '{category}' in fallback mode with basic summary + tags.",
-            "warning",
-        )
+
+    def do_fetch():
+        _fetch_jobs[job_id] = "running"
+        try:
+            items = fetch_news(category=category, limit=5, submitted_by=uname)
+            for n in items:
+                insert_news(
+                    n["title"], n["content"], n["hindi_title"], n["hindi_content"],
+                    n["source"], n["category"], n.get("image_url", ""), n.get("tags", ""), uname,
+                )
+            print(f"[FETCH DONE] {len(items)} articles from '{category}'")
+        except Exception as e:
+            print(f"[FETCH ERROR] {e}")
+        finally:
+            _fetch_jobs[job_id] = "done"
+
+    t = threading.Thread(target=do_fetch, daemon=True)
+    t.start()
+
+    flash(f"⏳ Fetching news from '{category}' in background — refresh dashboard in 2-3 minutes to see new articles.", "success")
     return redirect(url_for("dashboard"))
 
 
