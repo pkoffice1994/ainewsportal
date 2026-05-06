@@ -537,7 +537,12 @@ def generate():
         return redirect(url_for("dashboard"))
     category = request.args.get("category", "India")
     uname = get_uname()
-    items = fetch_news(category=category, limit=8, submitted_by=uname)
+    try:
+        items = fetch_news(category=category, limit=8, submitted_by=uname)
+    except Exception as e:
+        print(f"[FETCH ERROR] {e}")
+        flash(f"⚠️ Fetch failed: {str(e)[:100]}", "warning")
+        return redirect(url_for("dashboard"))
     for n in items:
         insert_news(
             n["title"],

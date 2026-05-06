@@ -414,7 +414,7 @@ def call_groq(prompt, max_tokens=1000):
                 "max_tokens": max_tokens,
                 "temperature": 0.7,
             },
-            timeout=30,
+            timeout=20,
         )
         if resp.status_code == 200:
             return resp.json()["choices"][0]["message"]["content"].strip()
@@ -427,7 +427,7 @@ def call_groq(prompt, max_tokens=1000):
                 headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
                 json={"model": GROQ_MODEL, "messages": [{"role": "user", "content": prompt}],
                       "max_tokens": max_tokens, "temperature": 0.7},
-                timeout=30,
+                timeout=20,
             )
             if resp2.status_code == 200:
                 return resp2.json()["choices"][0]["message"]["content"].strip()
